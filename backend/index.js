@@ -16,7 +16,6 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/", async (req, res) => {
-  console.log("params", req.body);
   const new_todo = await Todo.create({
     title: req.body.title,
     children: req.body.children,
@@ -25,9 +24,7 @@ app.post("/", async (req, res) => {
 });
 
 app.put("/sub", async (req, res) => {
-  console.log("_________params", req.body);
   const todo = await Todo.findOne({ where: { id: req.body.id } });
-  console.log("TODO", todo);
   if (!todo) {
     return res.send(404);
   }
