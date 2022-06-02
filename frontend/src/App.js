@@ -29,13 +29,18 @@ const AddButton = styled.button`
   font-size: 2em;
 `;
 
+const AddButtonLabel = styled.span`
+  &:before {
+    content: "\\2795";
+  }
+`;
+
 function App() {
   const [todos, setTodos] = useState([]);
 
   useEffect(() => {
     async function fetchTodos() {
       const { data } = await axios.get("/api/todo");
-      console.log("__DATAT__", data);
       setTodos(data);
     }
 
@@ -81,7 +86,9 @@ function App() {
             ></Todo>
           ))}
         </Todos>
-        <AddButton>+</AddButton>
+        <AddButton>
+          <AddButtonLabel></AddButtonLabel>
+        </AddButton>
       </Content>
     </Container>
   );

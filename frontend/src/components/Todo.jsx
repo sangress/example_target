@@ -4,11 +4,17 @@ import styled from "styled-components";
 const ListItem = styled.li`
   color: #ffffff;
   font-size: 1.4rem;
-  text-decoration: ${({ checked }) => (checked ? "line-through" : "")};
   &:before {
     margin-right: 5px;
-    content: "${({ checked }) => (checked ? "\\2713" : "\\2610")}";
+    content: "${({ checked }) => (checked ? "\\2611" : "\\2610")}";
   }
+  margin-bottom: 20px;
+`;
+
+const ListItemLabel = styled.span`
+  color: #ffffff;
+  font-size: 1.4rem;
+  text-decoration: ${({ checked }) => (checked ? "line-through" : "")};
 `;
 
 const ChildrenTodos = styled.ul`
@@ -18,8 +24,12 @@ const ChildrenTodos = styled.ul`
 
 function Todo({ todo, checkTodo, checkTodoChild }) {
   return (
-    <ListItem checked={todo.checked} onClick={checkTodo}>
-      {todo.title}
+    <ListItem
+      checked={todo.checked}
+      onClick={checkTodo}
+      contentEditable={false}
+    >
+      <ListItemLabel checked={todo.checked}>{todo.title}</ListItemLabel>
       {!!todo.children.length && (
         <ChildrenTodos>
           {todo.children.map((child) => (
@@ -28,12 +38,17 @@ function Todo({ todo, checkTodo, checkTodoChild }) {
               key={child.title}
               onClick={(evt) => {
                 evt.stopPropagation();
+                if (todo.checked) {
+                  return;
+                }
                 child.checked = !child.checked;
                 checkTodoChild && checkTodoChild(todo);
               }}
               checked={child.checked || todo.checked}
             >
-              {child.title}
+              <ListItemLabel checked={child.checked}>
+                {child.title}
+              </ListItemLabel>
             </ListItem>
           ))}
         </ChildrenTodos>
