@@ -4,7 +4,8 @@ const sequelize = new Sequelize("sqlite::memory:");
 
 const Todo = sequelize.define("Todo", {
   title: DataTypes.STRING,
-  children: DataTypes.ARRAY(DataTypes.JSON),
+  checked: DataTypes.BOOLEAN,
+  children: DataTypes.JSON,
 });
 
 export { Todo };

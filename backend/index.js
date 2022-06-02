@@ -10,20 +10,20 @@ app.use(express.urlencoded({ extended: true }));
 
 init_db();
 
-app.get("/", async (req, res) => {
+app.get("/api/todo", async (req, res) => {
   const todos = await Todo.findAll({});
   return res.send(todos);
 });
 
-app.post("/", async (req, res) => {
+app.post("/api/todo", async (req, res) => {
   const new_todo = await Todo.create({
     title: req.body.title,
-    children: req.body.children,
+    children: req.body.children || [],
   });
   return res.send("Received a POST HTTP method");
 });
 
-app.put("/sub", async (req, res) => {
+app.put("/api/todo/sub", async (req, res) => {
   const todo = await Todo.findOne({ where: { id: req.body.id } });
   if (!todo) {
     return res.send(404);
@@ -34,7 +34,7 @@ app.put("/sub", async (req, res) => {
   return res.send(todo);
 });
 
-app.delete("/", (req, res) => {
+app.delete("/api/todo", (req, res) => {
   return res.send("Received a DELETE HTTP method");
 });
 
