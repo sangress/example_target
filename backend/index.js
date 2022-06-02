@@ -20,7 +20,7 @@ app.post("/api/todo", async (req, res) => {
     title: req.body.title,
     children: req.body.children || [],
   });
-  return res.send("Received a POST HTTP method");
+  return res.send(new_todo);
 });
 
 app.put("/api/todo/sub", async (req, res) => {

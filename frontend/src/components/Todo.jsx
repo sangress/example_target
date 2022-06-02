@@ -24,17 +24,25 @@ const ChildrenTodos = styled.ul`
 
 function Todo({ todo, checkTodo, checkTodoChild }) {
   return (
-    <ListItem
-      checked={todo.checked}
-      onClick={checkTodo}
-      contentEditable={false}
-    >
-      <ListItemLabel checked={todo.checked}>{todo.title}</ListItemLabel>
+    <ListItem checked={todo.checked} onClick={checkTodo}>
+      <ListItemLabel
+        onClick={(evt) => evt.stopPropagation()}
+        contentEditable={!todo.checked}
+        checked={todo.checked}
+        onKeyPress={(evt) => {
+          if (evt.key === "Enter") {
+            evt.preventDefault();
+            evt.target.blur();
+            // TODO: save
+          }
+        }}
+      >
+        {todo.title}
+      </ListItemLabel>
       {!!todo.children.length && (
         <ChildrenTodos>
           {todo.children.map((child) => (
             <ListItem
-              contentEditable={false}
               key={child.title}
               onClick={(evt) => {
                 evt.stopPropagation();
@@ -46,7 +54,18 @@ function Todo({ todo, checkTodo, checkTodoChild }) {
               }}
               checked={child.checked || todo.checked}
             >
-              <ListItemLabel checked={child.checked}>
+              <ListItemLabel
+                checked={child.checked}
+                contentEditable={!child.checked}
+                onKeyPress={(evt) => {
+                  if (evt.key === "Enter") {
+                    evt.preventDefault();
+                    evt.target.blur();
+                    // TODO: save
+                  }
+                }}
+                onClick={(evt) => evt.stopPropagation()}
+              >
                 {child.title}
               </ListItemLabel>
             </ListItem>

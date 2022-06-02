@@ -73,6 +73,22 @@ function App() {
     );
   });
 
+  const addTodo = useCallback(() => {
+    async function addNewTodo() {
+      const { data } = await axios.post("/api/todo", {
+        title: "new mission",
+        children: [],
+        checked: false,
+      });
+
+      setTodos([...todos, data]);
+    }
+
+    return () => {
+      addNewTodo();
+    };
+  });
+
   return (
     <Container>
       <Content>
@@ -86,7 +102,7 @@ function App() {
             ></Todo>
           ))}
         </Todos>
-        <AddButton>
+        <AddButton onClick={addTodo()}>
           <AddButtonLabel></AddButtonLabel>
         </AddButton>
       </Content>
