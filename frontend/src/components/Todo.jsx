@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 import { AddButton, AddButtonLabel } from "../App";
 
@@ -23,6 +24,15 @@ const ChildrenTodos = styled.ul`
   list-style: none;
 `;
 
+const FoldButton = styled.span`
+  position: absolute;
+  top: -2px;
+  left: -20px;
+  &:before {
+    content: "${({ folded }) => (folded ? "\\21D2" : "\\21D8")}";
+  }
+`;
+
 function updateChild(todo, newText, isChecked, i) {
   return {
     ...todo,
@@ -36,8 +46,21 @@ function updateChild(todo, newText, isChecked, i) {
 }
 
 function Todo({ todo, checkTodo, checkTodoChild, addChildTodo, updateTodo }) {
+  const [foldedTodos, setFoldedTodos] = useState([]);
   return (
     <ListItem checked={todo.checked} onClick={checkTodo}>
+      <FoldButton
+        folded={foldedTodos.includes(todo.id)}
+        onClick={(evt) => {
+          evt.stopPropagation();
+          const exist = foldedTodos.indexOf(todo.id);
+          if (exist >= 0) {
+            setFoldedTodos(foldedTodos.filter((id) => id !== todo.id));
+            return;
+          }
+          setFoldedTodos([...foldedTodos, todo.id]);
+        }}
+      ></FoldButton>
       <ListItemLabel
         onClick={(evt) => evt.stopPropagation()}
         contentEditable={!todo.checked}
@@ -55,7 +78,7 @@ function Todo({ todo, checkTodo, checkTodoChild, addChildTodo, updateTodo }) {
       >
         {todo.title}
       </ListItemLabel>
-      {!!todo.children.length && (
+      {!!todo.children.length && !foldedTodos.includes(todo.id) && (
         <ChildrenTodos>
           {/* TODO: fix duplication */}
           {todo.children.map((child, i) => (
@@ -97,18 +120,20 @@ function Todo({ todo, checkTodo, checkTodoChild, addChildTodo, updateTodo }) {
           ))}
         </ChildrenTodos>
       )}
-      <ChildrenTodos>
-        <AddButton
-          size={"small"}
-          positioned={false}
-          onClick={(evt) => {
-            evt.stopPropagation();
-            addChildTodo(todo, { title: "new sub" });
-          }}
-        >
-          <AddButtonLabel size={"small"}></AddButtonLabel>
-        </AddButton>
-      </ChildrenTodos>
+      {!foldedTodos.includes(todo.id) && (
+        <ChildrenTodos>
+          <AddButton
+            size={"small"}
+            positioned={false}
+            onClick={(evt) => {
+              evt.stopPropagation();
+              addChildTodo(todo, { title: "new sub" });
+            }}
+          >
+            <AddButtonLabel size={"small"}></AddButtonLabel>
+          </AddButton>
+        </ChildrenTodos>
+      )}
     </ListItem>
   );
 }
