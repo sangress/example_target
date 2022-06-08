@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { AddButton, AddButtonLabel } from "../App";
 
 const ListItem = styled.li`
   color: #ffffff;
@@ -9,6 +9,7 @@ const ListItem = styled.li`
     content: "${({ checked }) => (checked ? "\\2611" : "\\2610")}";
   }
   margin-bottom: 20px;
+  position: relative;
 `;
 
 const ListItemLabel = styled.span`
@@ -22,28 +23,44 @@ const ChildrenTodos = styled.ul`
   list-style: none;
 `;
 
-function Todo({ todo, checkTodo, checkTodoChild }) {
+function updateChild(todo, newText, isChecked, i) {
+  return {
+    ...todo,
+    children: todo.children.map((c, j) => {
+      if (j === i) {
+        return { title: newText || c.title, checked: isChecked };
+      }
+      return c;
+    }),
+  };
+}
+
+function Todo({ todo, checkTodo, checkTodoChild, addChildTodo, updateTodo }) {
   return (
     <ListItem checked={todo.checked} onClick={checkTodo}>
       <ListItemLabel
         onClick={(evt) => evt.stopPropagation()}
         contentEditable={!todo.checked}
+        suppressContentEditableWarning={true}
         checked={todo.checked}
         onKeyPress={(evt) => {
           if (evt.key === "Enter") {
             evt.preventDefault();
             evt.target.blur();
-            // TODO: save
           }
+        }}
+        onBlur={(evt) => {
+          updateTodo && updateTodo({ ...todo, title: evt.target.innerText });
         }}
       >
         {todo.title}
       </ListItemLabel>
       {!!todo.children.length && (
         <ChildrenTodos>
-          {todo.children.map((child) => (
+          {/* TODO: fix duplication */}
+          {todo.children.map((child, i) => (
             <ListItem
-              key={child.title}
+              key={`${child.title}.${i}`}
               onClick={(evt) => {
                 evt.stopPropagation();
                 if (todo.checked) {
@@ -51,20 +68,28 @@ function Todo({ todo, checkTodo, checkTodoChild }) {
                 }
                 child.checked = !child.checked;
                 checkTodoChild && checkTodoChild(todo);
+                updateTodo &&
+                  updateTodo(updateChild(todo, null, child.checked, i));
               }}
               checked={child.checked || todo.checked}
             >
               <ListItemLabel
-                checked={child.checked}
+                checked={child.checked || todo.checked}
                 contentEditable={!child.checked}
+                suppressContentEditableWarning={true}
                 onKeyPress={(evt) => {
                   if (evt.key === "Enter") {
                     evt.preventDefault();
                     evt.target.blur();
-                    // TODO: save
                   }
                 }}
                 onClick={(evt) => evt.stopPropagation()}
+                onBlur={(evt) => {
+                  updateTodo &&
+                    updateTodo(
+                      updateChild(todo, evt.target.innerText, child.checked, i)
+                    );
+                }}
               >
                 {child.title}
               </ListItemLabel>
@@ -72,6 +97,18 @@ function Todo({ todo, checkTodo, checkTodoChild }) {
           ))}
         </ChildrenTodos>
       )}
+      <ChildrenTodos>
+        <AddButton
+          size={"small"}
+          positioned={false}
+          onClick={(evt) => {
+            evt.stopPropagation();
+            addChildTodo(todo, { title: "new sub" });
+          }}
+        >
+          <AddButtonLabel size={"small"}></AddButtonLabel>
+        </AddButton>
+      </ChildrenTodos>
     </ListItem>
   );
 }

@@ -21,15 +21,16 @@ const Todos = styled.ul`
 `;
 
 const AddButton = styled.button`
-  position: absolute;
+  position: ${({ positioned }) => (positioned ? "absolute" : "initial")};
   bottom: 50px;
   right: 50px;
-  width: 64px;
-  height: 64px;
-  font-size: 2em;
+  width: ${({ size }) => (size === "small" ? "24px" : "64px")};
+  height: ${({ size }) => (size === "small" ? "24px" : "64px")};
+  padding: 0;
 `;
 
 const AddButtonLabel = styled.span`
+  font-size: ${({ size }) => (size === "small" ? "1rem" : "2rem")};
   &:before {
     content: "\\2795";
   }
@@ -49,29 +50,44 @@ function App() {
     };
   }, []);
 
-  const onCheckTodo = useCallback((todoToCheck) => {
-    // TODO: save
-    setTodos(
-      todos.map((todo) => {
-        if (todo.id === todoToCheck.id) {
-          todo.checked = !todoToCheck.checked;
-        }
-        return todo;
-      })
-    );
-  });
+  const updateTodo = useCallback(async (todoToUpdate) => {
+    await axios.put("/api/todo", {
+      id: todoToUpdate.id,
+      title: todoToUpdate.title,
+      children: todoToUpdate.children,
+      checked: todoToUpdate.checked,
+    });
+  }, []);
 
-  const checkTodoChild = useCallback((todoToCheck) => {
-    // TODO: save
-    setTodos(
-      todos.map((todo) => {
-        if (todo.id === todoToCheck.id) {
-          todo = todoToCheck;
-        }
-        return todo;
-      })
-    );
-  });
+  const onCheckTodo = useCallback(
+    (todoToCheck) => {
+      setTodos(
+        todos.map((todo) => {
+          if (todo.id === todoToCheck.id) {
+            todo.checked = !todoToCheck.checked;
+          }
+          return todo;
+        })
+      );
+      updateTodo(todoToCheck);
+    },
+    [todos, updateTodo]
+  );
+
+  const checkTodoChild = useCallback(
+    (todoToCheck) => {
+      setTodos(
+        todos.map((todo) => {
+          if (todo.id === todoToCheck.id) {
+            todo = todoToCheck;
+          }
+          return todo;
+        })
+      );
+      updateTodo(todoToCheck);
+    },
+    [todos, updateTodo]
+  );
 
   const addTodo = useCallback(() => {
     async function addNewTodo() {
@@ -87,7 +103,29 @@ function App() {
     return () => {
       addNewTodo();
     };
-  });
+  }, [todos]);
+
+  const addChildTodo = useCallback(
+    async (todoToUpdate, new_sub) => {
+      const { data } = await axios.put("/api/todo/sub", {
+        id: todoToUpdate.id,
+        title: todoToUpdate.title,
+        children: todoToUpdate.children,
+        checked: todoToUpdate.checked,
+        new_sub,
+      });
+
+      setTodos(
+        todos.map((todo) => {
+          if (todo.id === data.id) {
+            return data;
+          }
+          return todo;
+        })
+      );
+    },
+    [todos]
+  );
 
   return (
     <Container>
@@ -99,10 +137,12 @@ function App() {
               todo={todo}
               checkTodo={() => onCheckTodo(todo)}
               checkTodoChild={checkTodoChild}
+              addChildTodo={addChildTodo}
+              updateTodo={updateTodo}
             ></Todo>
           ))}
         </Todos>
-        <AddButton onClick={addTodo()}>
+        <AddButton onClick={addTodo()} positioned={true}>
           <AddButtonLabel></AddButtonLabel>
         </AddButton>
       </Content>
@@ -111,3 +151,5 @@ function App() {
 }
 
 export default App;
+
+export { AddButton, AddButtonLabel };

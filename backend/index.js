@@ -23,6 +23,19 @@ app.post("/api/todo", async (req, res) => {
   return res.send(new_todo);
 });
 
+app.put("/api/todo", async (req, res) => {
+  const todo = await Todo.findOne({ where: { id: req.body.id } });
+  if (!todo) {
+    return res.send(404);
+  }
+
+  todo.title = req.body.title;
+  todo.checked = req.body.checked;
+  todo.children = req.body.children;
+  await todo.save();
+  return res.send(todo);
+});
+
 app.put("/api/todo/sub", async (req, res) => {
   const todo = await Todo.findOne({ where: { id: req.body.id } });
   if (!todo) {
