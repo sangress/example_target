@@ -2,8 +2,10 @@ import { useState } from "react";
 import styled from "styled-components";
 import { AddButton, AddButtonLabel } from "../App";
 
+const TEXT_COLOUR = "#FFF8DC";
+
 const ListItem = styled.li`
-  color: #ffffff;
+  color: ${({ checked }) => (checked ? "#2F4F4F" : TEXT_COLOUR)};
   font-size: 1.4rem;
   &:before {
     margin-right: 5px;
@@ -14,7 +16,7 @@ const ListItem = styled.li`
 `;
 
 const ListItemLabel = styled.span`
-  color: #ffffff;
+  color: ${({ checked }) => (checked ? "#2F4F4F" : TEXT_COLOUR)};
   font-size: 1.4rem;
   text-decoration: ${({ checked }) => (checked ? "line-through" : "")};
 `;
@@ -47,8 +49,14 @@ function updateChild(todo, newText, isChecked, i) {
 
 function Todo({ todo, checkTodo, checkTodoChild, addChildTodo, updateTodo }) {
   const [foldedTodos, setFoldedTodos] = useState([]);
+  const [hoverTodo, setHoverTodo] = useState(false);
   return (
-    <ListItem checked={todo.checked} onClick={checkTodo}>
+    <ListItem
+      checked={todo.checked}
+      onClick={checkTodo}
+      onMouseEnter={() => setHoverTodo(true)}
+      onMouseLeave={() => setHoverTodo(false)}
+    >
       <FoldButton
         folded={foldedTodos.includes(todo.id)}
         onClick={(evt) => {
@@ -123,6 +131,7 @@ function Todo({ todo, checkTodo, checkTodoChild, addChildTodo, updateTodo }) {
       {!foldedTodos.includes(todo.id) && (
         <ChildrenTodos>
           <AddButton
+            invisible={!hoverTodo}
             size={"small"}
             positioned={false}
             onClick={(evt) => {

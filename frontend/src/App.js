@@ -3,10 +3,13 @@ import styled from "styled-components";
 import Todo from "./components/Todo";
 import axios from "axios";
 
+const TEXT_COLOUR = "#FFF8DC";
+
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
   background-color: #282c34;
+  overflow-x: hidden;
 `;
 
 const Content = styled.div`
@@ -27,6 +30,8 @@ const AddButton = styled.button`
   width: ${({ size }) => (size === "small" ? "24px" : "64px")};
   height: ${({ size }) => (size === "small" ? "24px" : "64px")};
   padding: 0;
+  opacity: ${({ invisible }) => (invisible ? "0" : "1")};
+  transition: 0.33s;
 `;
 
 const AddButtonLabel = styled.span`
@@ -34,6 +39,16 @@ const AddButtonLabel = styled.span`
   &:before {
     content: "\\2795";
   }
+`;
+
+const Heading = styled.h1`
+  color: ${TEXT_COLOUR};
+`;
+
+const Logo = styled.img`
+  width: 20px;
+  position: absolute;
+  right: 30px;
 `;
 
 function App() {
@@ -130,6 +145,8 @@ function App() {
   return (
     <Container>
       <Content>
+        <Heading>Example Target</Heading>
+        <Logo src={"logo192.png"}></Logo>
         <Todos>
           {todos.map((todo) => (
             <Todo
